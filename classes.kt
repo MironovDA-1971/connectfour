@@ -52,8 +52,8 @@ object InitBoard {
 }
 
 object BoxConstructor {
-            // ╚ ═ ╩ ╝ ║
-    var list: List<Int> = emptyList()
+    //        // ╚ ═ ╩ ╝ ║
+    //var list: List<Int> = emptyList()
 
     fun drawBox(list: List<Int>) {
         var numberRow = ""
