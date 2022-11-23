@@ -31,7 +31,7 @@ object InitBoard {
             println("Set the board dimensions (Rows x Columns)\n" +
                     "Press Enter for default (6 x 7)")
             val string = readln().trim().lowercase()
-            if (!string.isNullOrEmpty()) {
+            if (string.isNotEmpty()) {
                 try {
                     val (a, b) = regex.find(string)!!.destructured
                     sizeBoardInt = listOf(a.toInt(), b.toInt())
