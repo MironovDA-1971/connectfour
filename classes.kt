@@ -18,21 +18,35 @@ object Players {
     )
 }
 
-object InputField {
-    val rowsColumns: List<String>
+object InitBoard {
+    val sizeBoard: List<Int>
         get() = checkInputField()
 
-    private fun checkInputField(): List<String> {
+    private fun checkInputField(): List<Int> {
         val range = 5..9
-        //val a: List<String>
+        var sizeBoardInt: List<Int>
+        val regex = """^(\d)+\s*x\s*(\d)+$""".toRegex()
+
         while (true) {
             println("Set the board dimensions (Rows x Columns)\n" +
                     "Press Enter for default (6 x 7)")
-            val a = readln().trim().split("\d\s?[xX]\s?\d")
-            if (a.size != 3 || a[1] != "x") println("Invalid input")
-            else if (a[0].toInt() !in range) println("Board rows should be from 5 to 9")
-            else if (a[0].toInt() !in range) println("Board columns should be from 5 to 9")
-            else break
+            val string = readln().trim().lowercase()
+            if (!string.isNullOrEmpty()) {
+                try {
+                    val (a, b) = regex.find(string)!!.destructured
+                    sizeBoardInt = listOf(a.toInt(), b.toInt())
+                    if (sizeBoardInt[0] !in range) println("Board rows should be from 5 to 9")
+                    else if (sizeBoardInt[1] !in range) println("Board columns should be from 5 to 9")
+                    else break
+                } catch (_: Exception) {
+                    println("Invalid input")
+                }
+
+            } else {
+                sizeBoardInt = listOf(6, 7)
+                break
+            }
         }
+        return sizeBoardInt
     }
 }
