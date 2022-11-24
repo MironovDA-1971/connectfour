@@ -6,5 +6,5 @@ fun main() {
     val board = InitBoard.sizeBoard
     println("${players[1]} VS ${players[2]}")
     println("${board[0]} X ${board[1]} board")
-    BoxConstructor(players, board).drawBox()
+    BoxConstructor(players, board).outBox()
 }
