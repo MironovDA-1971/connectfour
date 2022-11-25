@@ -19,8 +19,30 @@ object Players {
 }
 
 object InitBoard {
-    val sizeBoard: List<Int>
+    val size: List<Int>
         get() = checkInputField()
+    val rounds: Int
+        get() = checkInputRounds()
+
+    private fun checkInputRounds(): Int {
+        var numRounds = 1
+        while (true) {
+            println(
+                "Do you want to play single or multiple games?\n" +
+                "For a single game, input 1 or press Enter"
+            )
+            val string = readln().trim()
+            if (string.isNotEmpty()) {
+                if ("""\d+""".toRegex().matches(string) && string != "0") {
+                    numRounds = string.toInt()
+                    println("Total $numRounds games")
+                    break
+                }
+                else println("Invalid input")
+            } else { println("Single game"); break }
+        }
+        return numRounds
+    }
 
     private fun checkInputField(): List<Int> {
         var sizeBoardInt: List<Int>
@@ -47,9 +69,11 @@ object InitBoard {
     }
 }
 
-class BoxConstructor(private val playerName: Map<Int, String>,
-                     private val boardSize: List<Int>
-                    ) {
+class BoxConstructor(
+    private val playerName: Map<Int, String>,
+    private val boardSize: List<Int>,
+    val numRounds: Int
+) {
     private var turnList: List<MutableList<Char>> = List(boardSize[0]){ MutableList(boardSize[1]){' '} }
 
     private fun getTurn(playerNum: Int): Boolean {
@@ -61,7 +85,7 @@ class BoxConstructor(private val playerName: Map<Int, String>,
             println("${playerName[playerIndex]}'s turn:")
             try {
                 turn = readln().lowercase()
-                if(turn == "end") { stopGame = true; break }
+                if (turn == "end") { stopGame = true; break }
                 if (turn.toInt() !in 1..boardSize[1]) println("The column number is out of range (1 - ${boardSize[1]})")
                 else {
                     columnFull = fillBox(turn.toInt() - 1, playerIndex)
@@ -108,7 +132,7 @@ class BoxConstructor(private val playerName: Map<Int, String>,
     fun outBox() {
         var startPlayerNumber = 1
         var endGame: Boolean
-        var win: Boolean
+        var win = 0
         drawBox()
         while (true) {
             ++startPlayerNumber
@@ -116,17 +140,16 @@ class BoxConstructor(private val playerName: Map<Int, String>,
             if (endGame) break
             drawBox()
             win = winString(startPlayerNumber)
-            if (win) break
+            if (win != 0) break
         }
     }
 
-    private fun winString(playerNum: Int): Boolean {
-        var win = false
+    private fun winString(playerNum: Int): Int {
+        var win = 0
         val raw = turnList.lastIndex
         val colR = turnList[0].lastIndex - 1
         val colL = turnList[0].lastIndex + 1
         val sym = if (playerNum % 2 == 0) "o" else "\\*"
-        // val ym = if (playerNum % 2 == 0) "\\*" else "o"
         val regex = listOf(
             """.*$sym{4}.*""",
             """.*$sym.{$raw}$sym.{$raw}$sym.{$raw}$sym.*""",
@@ -140,10 +163,16 @@ class BoxConstructor(private val playerName: Map<Int, String>,
         }
 
         for(it in regex) {
-            win = it.toRegex().matches(resultString)
-            if (win) { println("Player ${playerName[playerNum % 2 + 1]} won"); break }
+            if (it.toRegex().matches(resultString)) win = 1
+            if (!""".*\s.*""".toRegex().matches(resultString)) win = 2
+            when(win) {
+                1 -> { println("Player ${playerName[playerNum % 2 + 1]} won"); break }
+                2 -> { println("It is a draw"); break }
+                else -> {}
+            }
+
         }
         //println(resultString)
-        return win //TODO "It is a draw"
+        return win
     }
 }
