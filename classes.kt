@@ -12,10 +12,12 @@ object Players {
     private val secondPlayerName: String
         get() = readName("Second")
 
-    val list: Map<Int, String> = mapOf(
+    val players: Map<Int, String> = mapOf(
         1 to firstPlayerName,
         2 to secondPlayerName
     )
+
+    val totalPoints = MutableList(2){0}
 }
 
 object InitBoard {
@@ -72,7 +74,8 @@ object InitBoard {
 class BoxConstructor(
     private val playerName: Map<Int, String>,
     private val boardSize: List<Int>,
-    val numRounds: Int
+    private val numRounds: Int,
+    private val numThisRound: Int
 ) {
     private var turnList: List<MutableList<Char>> = List(boardSize[0]){ MutableList(boardSize[1]){' '} }
 
@@ -129,10 +132,11 @@ class BoxConstructor(
         }
     }
 
-    fun outBox() {
+    fun outBox(): Int {
         var startPlayerNumber = 1
         var endGame: Boolean
         var win = 0
+        if (numRounds > 1) println("Game #$numThisRound")
         drawBox()
         while (true) {
             ++startPlayerNumber
@@ -142,11 +146,12 @@ class BoxConstructor(
             win = winString(startPlayerNumber)
             if (win != 0) break
         }
+        return win
     }
 
     private fun winString(playerNum: Int): Int {
         var win = 0
-        val raw = turnList.lastIndex
+        val raw = turnList[0].lastIndex
         val colR = turnList[0].lastIndex - 1
         val colL = turnList[0].lastIndex + 1
         val sym = if (playerNum % 2 == 0) "o" else "\\*"
@@ -166,7 +171,11 @@ class BoxConstructor(
             if (it.toRegex().matches(resultString)) win = 1
             if (!""".*\s.*""".toRegex().matches(resultString)) win = 2
             when(win) {
-                1 -> { println("Player ${playerName[playerNum % 2 + 1]} won"); break }
+                1 -> {
+                    println("Player ${playerName[playerNum % 2 + 1]} won")
+                    win = if (playerNum % 2 + 1 == 0) 3 else 4 // TODO прверка что не сингл гейм
+                    break
+                }
                 2 -> { println("It is a draw"); break }
                 else -> {}
             }
