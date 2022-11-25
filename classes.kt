@@ -157,7 +157,7 @@ class BoxConstructor(
         val sym = if (playerNum % 2 == 0) "o" else "\\*"
         val regex = listOf(
             """.*$sym{4}.*""",
-            """.*$sym.{$raw}$sym.{$raw}$sym.{$raw}$sym.*""",
+            """.*$sym.{$raw}$sym.{$raw}$sym.{$raw}$sym.*""", // проверка по вертикади не работает
             """.*\s$sym\s{$colR}$sym.{$colR}$sym.{$colR}$sym.*""",
             """.*$sym.{$colL}$sym.{$colL}$sym.{$colL}$sym.*"""
             )
@@ -173,7 +173,7 @@ class BoxConstructor(
             when(win) {
                 1 -> {
                     println("Player ${playerName[playerNum % 2 + 1]} won")
-                    win = if (playerNum % 2 + 1 == 0) 3 else 4 // TODO прверка что не сингл гейм
+                    win = if (playerNum % 2 + 1 == 0) 3 else 4 // TODO прверка, что не сингл гейм
                     break
                 }
                 2 -> { println("It is a draw"); break }
