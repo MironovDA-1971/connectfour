@@ -30,7 +30,7 @@ object InitBoard {
             println("Set the board dimensions (Rows x Columns)\n" +
                     "Press Enter for default (6 x 7)")
             val string = readln().trim().lowercase()
-            if (string.isEmpty()) { sizeBoardInt = listOf(6, 7); break
+            if (string.isEmpty()) { sizeBoardInt = listOf(6, 7); break //TODO 6,7
             } else {
                 try {
                     val (a, b) = regex.find(string)!!.destructured
@@ -61,11 +61,7 @@ class BoxConstructor(private val playerName: Map<Int, String>,
             println("${playerName[playerIndex]}'s turn:")
             try {
                 turn = readln().lowercase()
-                if(turn == "end") {
-                    println("Game over!")
-                    stopGame = true
-                    break
-                }
+                if(turn == "end") { stopGame = true; break }
                 if (turn.toInt() !in 1..boardSize[1]) println("The column number is out of range (1 - ${boardSize[1]})")
                 else {
                     columnFull = fillBox(turn.toInt() - 1, playerIndex)
@@ -112,12 +108,42 @@ class BoxConstructor(private val playerName: Map<Int, String>,
     fun outBox() {
         var startPlayerNumber = 1
         var endGame: Boolean
+        var win: Boolean
         drawBox()
         while (true) {
-            endGame = getTurn(++startPlayerNumber)
-            if(endGame) break
+            ++startPlayerNumber
+            endGame = getTurn(startPlayerNumber)
+            if (endGame) break
             drawBox()
+            win = winString(startPlayerNumber)
+            if (win) break
         }
     }
 
+    private fun winString(playerNum: Int): Boolean {
+        var win = false
+        val raw = turnList.lastIndex
+        val colR = turnList[0].lastIndex - 1
+        val colL = turnList[0].lastIndex + 1
+        val sym = if (playerNum % 2 == 0) "o" else "\\*"
+        // val ym = if (playerNum % 2 == 0) "\\*" else "o"
+        val regex = listOf(
+            """.*$sym{4}.*""",
+            """.*$sym.{$raw}$sym.{$raw}$sym.{$raw}$sym.*""",
+            """.*\s$sym\s{$colR}$sym.{$colR}$sym.{$colR}$sym.*""",
+            """.*$sym.{$colL}$sym.{$colL}$sym.{$colL}$sym.*"""
+            )
+
+        var resultString = ""
+        turnList.forEach {
+            resultString += it.joinToString("")
+        }
+
+        for(it in regex) {
+            win = it.toRegex().matches(resultString)
+            if (win) { println("Player ${playerName[playerNum % 2 + 1]} won"); break }
+        }
+        //println(resultString)
+        return win //TODO "It is a draw"
+    }
 }
