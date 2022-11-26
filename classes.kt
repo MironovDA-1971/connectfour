@@ -25,23 +25,25 @@ object InitBoard {
         get() = checkInputField()
     val rounds: Int
         get() = checkInputRounds()
+    var textRound: String = ""
 
     private fun checkInputRounds(): Int {
         var numRounds = 1
         while (true) {
             println(
                 "Do you want to play single or multiple games?\n" +
-                "For a single game, input 1 or press Enter"
+                "For a single game, input 1 or press Enter\n" +
+                "Input a number of games:"
             )
             val string = readln().trim()
-            if (string.isNotEmpty()) {
+            if (string.isNotEmpty() && string != "1") {
                 if ("""\d+""".toRegex().matches(string) && string != "0") {
                     numRounds = string.toInt()
-                    println("Total $numRounds games")
+                    textRound = "Total $numRounds games"
                     break
                 }
                 else println("Invalid input")
-            } else { println("Single game"); break }
+            } else { textRound = "Single game"; break }
         }
         return numRounds
     }
@@ -54,7 +56,7 @@ object InitBoard {
             println("Set the board dimensions (Rows x Columns)\n" +
                     "Press Enter for default (6 x 7)")
             val string = readln().trim().lowercase()
-            if (string.isEmpty()) { sizeBoardInt = listOf(6, 7); break //TODO 6,7
+            if (string.isEmpty()) { sizeBoardInt = listOf(6, 7); break
             } else {
                 try {
                     val (a, b) = regex.find(string)!!.destructured
@@ -132,8 +134,8 @@ class BoxConstructor(
         }
     }
 
-    fun outBox(): Int {
-        var startPlayerNumber = 1
+    fun outBox(playerСhange: Int ) {
+        var startPlayerNumber = playerСhange % 2 + 1
         var endGame: Boolean
         var win = 0
         if (numRounds > 1) println("Game #$numThisRound")
@@ -146,7 +148,6 @@ class BoxConstructor(
             win = winString(startPlayerNumber)
             if (win != 0) break
         }
-        return win
     }
 
     private fun winString(playerNum: Int): Int {
@@ -157,7 +158,7 @@ class BoxConstructor(
         val sym = if (playerNum % 2 == 0) "o" else "\\*"
         val regex = listOf(
             """.*$sym{4}.*""",
-            """.*$sym.{$raw}$sym.{$raw}$sym.{$raw}$sym.*""", // проверка по вертикади не работает
+            """.*$sym.{$raw}$sym.{$raw}$sym.{$raw}$sym.*""",
             """.*\s$sym\s{$colR}$sym.{$colR}$sym.{$colR}$sym.*""",
             """.*$sym.{$colL}$sym.{$colL}$sym.{$colL}$sym.*"""
             )
@@ -173,15 +174,20 @@ class BoxConstructor(
             when(win) {
                 1 -> {
                     println("Player ${playerName[playerNum % 2 + 1]} won")
-                    win = if (playerNum % 2 + 1 == 0) 3 else 4 // TODO прверка, что не сингл гейм
+                    if (playerNum % 2 == 0) Players.totalPoints[0] += 2
+                    else Players.totalPoints[1] += 2
                     break
                 }
-                2 -> { println("It is a draw"); break }
+                2 -> {
+                    println("It is a draw")
+                    ++Players.totalPoints[0]
+                    ++Players.totalPoints[1]
+                    break
+                }
                 else -> {}
             }
 
         }
-        //println(resultString)
         return win
     }
 }
